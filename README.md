@@ -28,9 +28,11 @@ sequenceDiagram
     HostApp->>Backend: Verify payment server-side
 ```
 
+
+
 ## Requirements
 
-- Android minSdk 24, compileSdk 33
+- Android minSdk 24, compileSdk 33, AGP **7.0+**, Kotlin **1.9.x**, minSdk **24**, JDK **17**
 - Done app or Huma Store (`ir.huma.humastore`) installed on the device
 - Backend integrated with Huma Wallet Service for token generation
 
@@ -40,22 +42,17 @@ sequenceDiagram
 
 ```kotlin
 // settings.gradle.kts
-include(":lib")
-project(":lib").projectDir = file("path/to/HumaWalletLib/lib")
-
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
 // app/build.gradle.kts
 dependencies {
-    implementation(project(":lib"))
+    implementation("com.github.Montazar1375:HumaWalletLib:-version-")
 }
 ```
-
-### AAR
-
-```bash
-./gradlew :lib:assembleRelease
-```
-
-Output: `lib/build/outputs/aar/lib-release.aar`
 
 ## Usage
 
@@ -99,23 +96,26 @@ protected void onDestroy() {
 }
 ```
 
-For legacy Huma Store only, use `setFastPayment(true)` before `send()`.
-
 ## API
 
-| Method | Description |
-|--------|-------------|
-| `HumaWallet(activity)` | Create instance with host Activity |
-| `setPaymentToken(token)` | Required — server-issued token |
-| `setOnPayListener(listener)` | Required before `send()` |
-| `setFastPayment(isFast)` | Optional — legacy wallet only |
-| `send()` | Launch wallet payment flow |
-| `unregister()` | Unregister broadcast receiver |
 
-| Callback | When |
-|----------|------|
-| `onPayComplete(code)` | Payment succeeded |
-| `onPayFail(message)` | Cancelled or failed |
+| Method                       | Description                        |
+| ---------------------------- | ---------------------------------- |
+| `HumaWallet(activity)`       | Create instance with host Activity |
+| `setPaymentToken(token)`     | Required — server-issued token     |
+| `setOnPayListener(listener)` | Required before `send()`           |
+| `setPaymentType(type)`       | Optional — legacy wallet routing (`FAST`, `BNPL`, `NONE`) |
+| `setFastPayment(isFast)`     | Optional — legacy wallet only      |
+| `send()`                     | Launch wallet payment flow         |
+| `unregister()`               | Unregister broadcast receiver      |
+
+
+
+| Callback              | When                |
+| --------------------- | ------------------- |
+| `onPayComplete(code)` | Payment succeeded   |
+| `onPayFail(message)`  | Cancelled or failed |
+
 
 ## Wallet selection
 
@@ -123,23 +123,7 @@ The SDK picks a wallet automatically:
 
 1. **Done app** — if `app://done.tech/payment` resolves
 2. **Huma Store** — if `ir.huma.humastore` is installed
-3. Otherwise — shows a toast asking the user to install Huma Store
+3. Otherwise — shows a toast asking the user to install the latest Done/Huma app
 
 The library manifest includes the required `<queries>` for Android 11+ package visibility. No extra manifest changes are needed in your host app.
 
-## Build
-
-```bash
-./gradlew :lib:assembleRelease   # build library AAR
-./gradlew :app:assembleDebug      # build sample app
-```
-
-See the `:app` module for a runnable integration example.
-
-## Project structure
-
-```
-HumaWalletLib/
-├── lib/     # Android library (HumaWallet SDK)
-└── app/     # Sample integration app
-```

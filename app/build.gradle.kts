@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "ir.huma.humaWalletTest"
-    compileSdk = 33
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "ir.huma.humaWalletTest"

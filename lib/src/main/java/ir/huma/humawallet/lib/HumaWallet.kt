@@ -6,9 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.os.Build
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 
@@ -16,6 +14,7 @@ class HumaWallet {
 
     private var activity: Activity? = null
     private var paymentToken: String? = null
+    private var paymentType: PaymentType = PaymentType.NONE
     private var isFastPayment = false
     private var onPayListener: OnPayListener? = null
     private var isReceiverRegistered = false
@@ -33,6 +32,16 @@ class HumaWallet {
         this.isFastPayment = isFast
         return this
     }
+
+    fun setPaymentType(type: PaymentType?): HumaWallet {
+        paymentType = type ?: PaymentType.NONE
+        if (paymentType == PaymentType.FAST) {
+            isFastPayment = true
+        }
+        return this
+    }
+
+    fun getPaymentType(): PaymentType = paymentType
 
     fun getContext(): Activity? = activity
 
@@ -67,7 +76,7 @@ class HumaWallet {
             else -> {
                 Toast.makeText(
                     activity,
-                    "لطفا ابتدا برنامه هوما استور را نصب کنید.",
+                    "لطفا ابتدا برنامه دان را نصب کنید.",
                     Toast.LENGTH_SHORT,
                 ).show()
             }
@@ -125,6 +134,7 @@ class HumaWallet {
         return Intent(Intent.ACTION_VIEW, LEGACY_WALLET_URI.toUri()).apply {
             putExtra("token", paymentToken)
             putExtra("isFastPayment", isFastPayment)
+            putExtra("paymentType", paymentType)
             putExtra("package", currentActivity.packageName)
             setPackage(LEGACY_WALLET_PACKAGE)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
