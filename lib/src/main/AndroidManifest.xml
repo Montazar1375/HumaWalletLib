@@ -9,7 +9,7 @@
             <category android:name="android.intent.category.BROWSABLE" />
 
             <data
-                android:host="done.tech"
+                android:host="done.tech.payment"
                 android:scheme="app" />
         </intent>
 

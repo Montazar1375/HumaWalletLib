@@ -115,9 +115,8 @@ class HumaWallet {
         val currentActivity = activity
             ?: throw IllegalStateException("Activity is required to launch payment")
 
-        val uri = "$NEW_WALLET_SCHEME://$NEW_WALLET_HOST".toUri()
+        val uri = "$NEW_WALLET_SCHEME://$NEW_WALLET_HOST/".toUri()
             .buildUpon()
-            .path(NEW_WALLET_PAYMENT_PATH)
             .appendQueryParameter(QUERY_TOKEN, paymentToken)
             .appendQueryParameter(QUERY_PACKAGE, currentActivity.packageName)
             .build()
@@ -191,8 +190,7 @@ class HumaWallet {
         const val EXTRA_PACKAGE_NAME = "packageName"
 
         const val NEW_WALLET_SCHEME = "app"
-        const val NEW_WALLET_HOST = "done.tech"
-        const val NEW_WALLET_PAYMENT_PATH = "/payment"
+        const val NEW_WALLET_HOST = "done.tech.payment"
         const val QUERY_TOKEN = "token"
         const val QUERY_PACKAGE = "package"
 
