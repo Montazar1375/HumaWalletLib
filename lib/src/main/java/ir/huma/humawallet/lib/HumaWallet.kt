@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
 
 class HumaWallet {
@@ -99,7 +100,19 @@ class HumaWallet {
 
     private fun isNewWalletAvailable(): Boolean {
         val currentActivity = activity ?: return false
-        return newWalletIntent().resolveActivity(currentActivity.packageManager) != null
+        return getDoneUiVersionCode(currentActivity.packageManager)?.let { versionCode ->
+            versionCode >= DONE_UI_MIN_VERSION_CODE
+        } == true
+    }
+
+    private fun getDoneUiVersionCode(packageManager: PackageManager): Long? {
+        return try {
+            @Suppress("DEPRECATION")
+            val packageInfo = packageManager.getPackageInfo(DONE_UI_PACKAGE, 0)
+            PackageInfoCompat.getLongVersionCode(packageInfo)
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
+        }
     }
 
     private fun isLegacyWalletInstalled(): Boolean {
@@ -115,8 +128,9 @@ class HumaWallet {
         val currentActivity = activity
             ?: throw IllegalStateException("Activity is required to launch payment")
 
-        val uri = "$NEW_WALLET_SCHEME://$NEW_WALLET_HOST/".toUri()
+        val uri = "$NEW_WALLET_SCHEME://$NEW_WALLET_HOST".toUri()
             .buildUpon()
+            .path(NEW_WALLET_PAYMENT_PATH)
             .appendQueryParameter(QUERY_TOKEN, paymentToken)
             .appendQueryParameter(QUERY_PACKAGE, currentActivity.packageName)
             .build()
@@ -190,9 +204,13 @@ class HumaWallet {
         const val EXTRA_PACKAGE_NAME = "packageName"
 
         const val NEW_WALLET_SCHEME = "app"
-        const val NEW_WALLET_HOST = "done.tech.payment"
+        const val NEW_WALLET_HOST = "done.tech"
+        const val NEW_WALLET_PAYMENT_PATH = "/payment"
         const val QUERY_TOKEN = "token"
         const val QUERY_PACKAGE = "package"
+
+        const val DONE_UI_PACKAGE = "ir.huma.android.launcher"
+        const val DONE_UI_MIN_VERSION_CODE = 400L
 
         const val LEGACY_WALLET_URI = "app://wallet.huma.ir"
         const val LEGACY_WALLET_PACKAGE = "ir.huma.humastore"

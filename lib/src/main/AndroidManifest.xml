@@ -2,17 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <queries>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-
-            <data
-                android:host="done.tech.payment"
-                android:scheme="app" />
-        </intent>
-
+        <package android:name="ir.huma.android.launcher" />
         <package android:name="ir.huma.humastore" />
     </queries>
 

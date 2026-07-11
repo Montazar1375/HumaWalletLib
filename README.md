@@ -103,7 +103,7 @@ protected void onDestroy() {
 
 The SDK picks a wallet automatically:
 
-1. **Done app** — if `app://done.tech.payment/?token=...&package=...` resolves
+1. **Done app** (`ir.huma.android.launcher`) — if installed with `versionCode >= 400`
 2. **Huma Store** — if `ir.huma.humastore` is installed
 3. Otherwise — shows a toast asking the user to install the latest Done/Huma app
 
