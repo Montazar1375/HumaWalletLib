@@ -6,17 +6,34 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
+
+private const val PAYMENT_RESULT_ACTION = "ir.huma.humawallet.paystatus"
+private const val EXTRA_SUCCESS = "success"
+private const val EXTRA_MESSAGE = "message"
+private const val EXTRA_PACKAGE_NAME = "packageName"
+
+private const val NEW_WALLET_SCHEME = "app"
+private const val NEW_WALLET_HOST = "done.tech"
+private const val NEW_WALLET_PAYMENT_PATH = "/payment"
+private const val QUERY_TOKEN = "token"
+private const val QUERY_PACKAGE = "package"
+
+private const val DONE_UI_PACKAGE = "ir.huma.android.launcher"
+private const val DONE_UI_MIN_VERSION_CODE = 400L
+
+private const val LEGACY_WALLET_URI = "app://wallet.huma.ir"
+private const val LEGACY_WALLET_PACKAGE = "ir.huma.humastore"
 
 class HumaWallet {
 
     private var activity: Activity? = null
     private var paymentToken: String? = null
     private var paymentType: PaymentType = PaymentType.NONE
-    private var isFastPayment = false
     private var onPayListener: OnPayListener? = null
     private var isReceiverRegistered = false
 
@@ -29,16 +46,8 @@ class HumaWallet {
         return this
     }
 
-    fun setFastPayment(isFast: Boolean): HumaWallet {
-        this.isFastPayment = isFast
-        return this
-    }
-
-    fun setPaymentType(type: PaymentType?): HumaWallet {
-        paymentType = type ?: PaymentType.NONE
-        if (paymentType == PaymentType.FAST) {
-            isFastPayment = true
-        }
+    fun setPaymentType(type: PaymentType): HumaWallet {
+        paymentType = type
         return this
     }
 
@@ -107,8 +116,16 @@ class HumaWallet {
 
     private fun getDoneUiVersionCode(packageManager: PackageManager): Long? {
         return try {
-            @Suppress("DEPRECATION")
-            val packageInfo = packageManager.getPackageInfo(DONE_UI_PACKAGE, 0)
+            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getPackageInfo(
+                    DONE_UI_PACKAGE,
+                    PackageManager.PackageInfoFlags.of(0L)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageInfo(DONE_UI_PACKAGE, 0)
+            }
+
             PackageInfoCompat.getLongVersionCode(packageInfo)
         } catch (_: PackageManager.NameNotFoundException) {
             null
@@ -146,7 +163,7 @@ class HumaWallet {
 
         return Intent(Intent.ACTION_VIEW, LEGACY_WALLET_URI.toUri()).apply {
             putExtra("token", paymentToken)
-            putExtra("isFastPayment", isFastPayment)
+            putExtra("isFastPayment", paymentType == PaymentType.FAST)
             putExtra("paymentType", paymentType)
             putExtra("package", currentActivity.packageName)
             setPackage(LEGACY_WALLET_PACKAGE)
@@ -195,24 +212,5 @@ class HumaWallet {
     interface OnPayListener {
         fun onPayComplete(code: String?)
         fun onPayFail(message: String?)
-    }
-
-    private companion object {
-        const val PAYMENT_RESULT_ACTION = "ir.huma.humawallet.paystatus"
-        const val EXTRA_SUCCESS = "success"
-        const val EXTRA_MESSAGE = "message"
-        const val EXTRA_PACKAGE_NAME = "packageName"
-
-        const val NEW_WALLET_SCHEME = "app"
-        const val NEW_WALLET_HOST = "done.tech"
-        const val NEW_WALLET_PAYMENT_PATH = "/payment"
-        const val QUERY_TOKEN = "token"
-        const val QUERY_PACKAGE = "package"
-
-        const val DONE_UI_PACKAGE = "ir.huma.android.launcher"
-        const val DONE_UI_MIN_VERSION_CODE = 400L
-
-        const val LEGACY_WALLET_URI = "app://wallet.huma.ir"
-        const val LEGACY_WALLET_PACKAGE = "ir.huma.humastore"
     }
 }

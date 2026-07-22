@@ -48,7 +48,7 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("release") {
-            groupId = "com.github.Montazar1375"
+            groupId = "com.github.humatv"
             artifactId = "HumaWalletLib"
             version = project.findProperty("version")?.toString() ?: "unspecified"
 

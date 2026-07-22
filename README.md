@@ -50,7 +50,7 @@ dependencyResolutionManagement {
 }
 // app/build.gradle.kts
 dependencies {
-    implementation("com.github.Montazar1375:HumaWalletLib:-version-")
+    implementation("com.github.humatv:HumaWalletLib:-version-")
 }
 ```
 
@@ -87,7 +87,6 @@ protected void onDestroy() {
 | `setPaymentToken(token)`     | Required — server-issued token                            |
 | `setOnPayListener(listener)` | Required before `send()`                                  |
 | `setPaymentType(type)`       | Optional — legacy wallet routing (`FAST`, `BNPL`, `NONE`) |
-| `setFastPayment(isFast)`     | Optional — legacy wallet only                             |
 | `send()`                     | Launch wallet payment flow                                |
 | `unregister()`               | Unregister broadcast receiver                             |
 
